@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+
+{% block title %}
+Import Book
+{% endblock title %}
+    
+
+
+{% block heading %}
+Import Book
+{% endblock heading %}
+
+
+{% block main_content %}
+    
+{% if confirm_form %}
+
+<form action="{% url 'import_confirm' %}" method="POST">    
+    {% csrf_token %}
+    {{ confirm_form.as_p }}
+    <p>
+        {% trans "Below is a preview of data to be imported. If you are satisfied with the results, click 'Confirm import'" %}
+    </p>
+    <div class="submit-row">
+        <input type="submit" class="default btn btn-primary" name="confirm" value="{% trans "Confirm import" %}">
+    </div>
+</form>
+
+{% else %}
+
+<form method="POST" enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <p>
+        {% trans "This importer will import the following fields: " %}
+        <code>{{ fields|join:", " }}</code>
+    </p>
+
+    <fieldset class="module aligned">
+        {% for field in form %}
+        <div class="form-row">
+            {{ field.errors }}
+
+            {{ field.label_tag }}
+
+            {{ field }}
+
+            {% if field.field.help_text %}
+            <p class="help">{{ field.field.help_text|safe }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </fieldset>
+
+    <div class="submit-row mt-3">
+        <input type="submit" class="default btn btn-primary" value="{% trans "Submit" %}">
+    </div>
+</form>
+{% endif %}
+
+
+
+{% if result %}
+
+{% if result.has_errors %}
+<hr class="mt-3 mb-2">
+<h2>{% trans "Errors" %}</h2>
+<ul>
+    {% for error in result.base_errors  %}
+    <li>
+        {{ error.error }}
+        <div class="traceback">{{ error.traceback|linebreaks }}</div>
+    </li>
+    {% endfor %}
+    {% for line, errors in result.row_errors %}
+    {% for error in errors %}
+    <li>
+        {% trans "Line number" %}: {{ line }} - {{ error.error }}
+        <div><code>{{ error.row.values|join:", " }}</code></div>
+        <div class="traceback">{{ error.traceback|linebreaks }}</div>
+    </li>
+    {% endfor %}
+    {% endfor %}
+</ul>
+
+{% elif result.has_validation_errors %}
+
+<hr class="mt-3 mb-2">
+<h2>{% trans "Some rows failed to validate" %}</h2>
+
+<p>{% trans "Please correct these errors in your data where possible, then reupload it using the form above." %}</p>
+
+<table class="import-preview table table-responsive table-hover">
+    <thead>
+        <tr>
+            <th>{% trans "Row" %}</th>
+            <th>{% trans "Errors" %}</th>
+            {% for field in result.diff_headers %}
+            <th>{{ field }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in result.invalid_rows %}
+        <tr>
+            <td style="white-space: normal !important;">{{ row.number }} </td>
+            <td style="white-space: normal !important;" class="errors">
+                <span class="validation-error-count">{{ row.error_count }}</span>
+                <div class="validation-error-container">
+                    <ul class="validation-error-list">
+                        {% for field_name, error_list in row.field_specific_errors.items %}
+                        <li>
+                            <span class="validation-error-field-label">{{ field_name }}</span>
+                            <ul>
+                                {% for error in error_list %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% endfor %}
+                        {% if row.non_field_specific_errors %}
+                        <li>
+                            <span class="validation-error-field-label">{% trans "Non field specific" %}</span>
+                            <ul>
+                                {% for error in row.non_field_specific_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </td>
+            {% for field in row.values %}
+            <td style="white-space: normal !important;">{{ field }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% else %}
+<hr class="mt-3 mb-2">
+<h2>{% trans "Preview" %}</h2>
+
+<table class="table import-preview">
+    <thead>
+        <tr>
+            <th></th>
+            {% for field in result.diff_headers %}
+            <th>{{ field }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    {% for row in result.valid_rows %}
+    <tr class="{{ row.import_type }}">
+        <td style="white-space: normal !important;" class="import-type">
+            {% if row.import_type == 'new' %}
+            {% trans "New" %}
+            {% elif row.import_type == 'skip' %}
+            {% trans "Skipped" %}
+            {% elif row.import_type == 'delete' %}
+            {% trans "Delete" %}
+            {% elif row.import_type == 'update' %}
+            {% trans "Update" %}
+            {% endif %}
+        </td>
+        {% for field in row.diff %}
+        <td style="white-space: normal !important;">{{ field }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+
+{% endif %}
+
+{% endif %}
+
+{% endblock main_content %}
+    

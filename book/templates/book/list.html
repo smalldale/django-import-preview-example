@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+Book
+{% endblock title %}
+
+
+{% block heading %}
+Book List
+{% endblock heading %}
+
+
+{% block main_content %}
+<div class="text-center">
+    <div class="mb-3">
+        <a class="btn btn-primary" href="{% url 'admin:index' %}">Admin</a>
+        <a class="btn btn-primary" href="{% url 'import' %}">Import</a>
+    </div>
+    
+    {% include 'book/snippets/table.html' %}
+</div>
+{% endblock main_content %}

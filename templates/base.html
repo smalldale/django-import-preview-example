@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% block title %}
+        
+        {% endblock title %}
+    </title>
+    <!-- css here -->
+    {% include 'includes/styles.html' %}
+    {% block stylesheets %}{% endblock stylesheets %}
+</head>
+<body>
+    <!-- alert messages -->
+    {% include 'includes/alert_messages.html' %}
+
+    <div class="container mt-5 mb-5">
+        <h1 class="mb-5 text-center">
+        {% block heading %}
+            
+        {% endblock heading %}
+        </h1>
+        
+        {% block main_content %}
+            
+        {% endblock main_content %}
+            
+    </div>
+
+    <!-- js here -->
+    {% include 'includes/scripts.html' %}
+    {% block javascripts %}{% endblock javascripts %}
+        
+</body>
+</html>
