@@ -11,8 +11,8 @@ python manage.py runserver
 ```
 
 ## Screenshot
-#### Import
+### Import
 ![Iamport](https://raw.github.com/smalldale/django-import-preview-example/master/import.png)
 
-#### Import Preview
+### Import Preview
 ![Import Preview](https://raw.github.com/smalldale/django-import-preview-example/master/preview.png)
