@@ -5,7 +5,7 @@
 {% block title %}
 Import Book
 {% endblock title %}
-    
+
 
 
 {% block heading %}
@@ -14,17 +14,17 @@ Import Book
 
 
 {% block main_content %}
-    
+
 {% if confirm_form %}
 
-<form action="{% url 'import_confirm' %}" method="POST">    
+<form action="{% url 'import_confirm' %}" method="POST">
     {% csrf_token %}
     {{ confirm_form.as_p }}
     <p>
         {% trans "Below is a preview of data to be imported. If you are satisfied with the results, click 'Confirm import'" %}
     </p>
     <div class="submit-row">
-        <input type="submit" class="default btn btn-primary" name="confirm" value="{% trans "Confirm import" %}">
+        <input type="submit" class="default btn btn-primary" name="confirm" value="{% trans " Confirm import" %}">
     </div>
 </form>
 
@@ -36,7 +36,15 @@ Import Book
 
     <p>
         {% trans "This importer will import the following fields: " %}
-        <code>{{ fields|join:", " }}</code>
+        {% if fields_list|length <= 1 %} <code>{{ fields_list.0.1|join:", " }}</code>
+            {% else %}
+            <dl>
+                {% for resource, fields in fields_list %}
+                <dt>{{ resource }}</dt>
+                <dd><code>{{ fields|join:", " }}</code></dd>
+                {% endfor %}
+            </dl>
+            {% endif %}
     </p>
 
     <fieldset class="module aligned">
@@ -69,7 +77,7 @@ Import Book
 <hr class="mt-3 mb-2">
 <h2>{% trans "Errors" %}</h2>
 <ul>
-    {% for error in result.base_errors  %}
+    {% for error in result.base_errors %}
     <li>
         {{ error.error }}
         <div class="traceback">{{ error.traceback|linebreaks }}</div>
@@ -180,4 +188,3 @@ Import Book
 {% endif %}
 
 {% endblock main_content %}
-    
